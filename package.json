@@ -1,0 +1,46 @@
+{
+  "name": "subayai",
+  "version": "1.0.0",
+  "description": "Process images, SVGs, and videos from the terminal: compress, convert, resize, edit, recolor, remove backgrounds, generate React components, and sync assets.",
+  "type": "module",
+  "bin": {
+    "subayai": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills"
+  ],
+  "scripts": {
+    "prepack": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "tsc && node --test"
+  },
+  "engines": {
+    "node": ">=20.17"
+  },
+  "dependencies": {
+    "@inquirer/core": "^12.0.3",
+    "@inquirer/prompts": "^8.7.2",
+    "sharp": "^0.35.5",
+    "svgo": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0"
+  },
+  "keywords": [
+    "image",
+    "cli",
+    "sharp",
+    "compress",
+    "webp",
+    "resize",
+    "remove-background",
+    "video",
+    "svg",
+    "svgo",
+    "react"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,35 @@
+node_modules/
+dist/
+.subayai/
+*.tsbuildinfo
+*.vsix
+.DS_Store
+*.log
+AGENTS.md
+CLAUDE.md
+
+# Generated flow index — always regenerated from source comments.
+# Never commit, never hand-edit.
+.kanrai/
+
+# dokomade runtime state
+.claude
+.codex
+.cursor
+.env
+.dokomade/config.json
+.dokomade/state.json
+.dokomade/pending.jsonl
+.dokomade/queue.jsonl
+.dokomade/perf.jsonl
+docs/dokomade/*
+
+# Viewer build copied into the CLI package by prepack
+packages/cli/viewer/
+
+# Secrets and publish artifacts
+.env*
+!.env.example
+.npmrc
+*.pem
+*.tgz
