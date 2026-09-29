@@ -1,10 +1,16 @@
-https://www.npmjs.com/package/subayai — Ask your AI assistant to install and use this package.
-
 # subayai
 
 ## Purpose
 
 `subayai` is a Node.js command-line tool for processing image, SVG, and video files in the current project.
+
+## How to use
+
+Copy and paste this into your AI assistant:
+
+```text
+Install https://www.npmjs.com/package/subayai in this codebase.
+```
 
 ## AI operating contract
 
@@ -37,35 +43,35 @@ npx subayai --help
 
 ## Commands
 
-| Command | Inputs | Required flags / behavior | Default output |
-|---|---|---|---|
-| `compress` | JPG, PNG, WebP, GIF, MP4, MOV, M4V | `--webp` converts images to WebP | `<name>_compress.<ext>`; videos output MP4 |
-| `convert` | JPG, PNG, GIF, TIF/TIFF, PSD, SVG, WebP, MOV | `--to jpg\|png\|webp\|mp4`; optional `--bg <color>` for JPG | `<name>.<target>` |
-| `edit` | JPG, PNG, WebP | One or more of `--brightness 0-2`, `--saturation 0-3`, `--radius <px>`, `--px <n>`; flags apply directly | `<name>_edited.<ext>` |
-| `resize` | JPG, PNG, WebP | `--percent 1-99` or `--width <px>`; optional `--height <px>` for one file | `<name>_resized.<ext>` |
-| `optimize` | JPG, PNG, WebP, SVG, MP4, MOV, M4V | Images accept resize flags; `--percent 100` keeps image dimensions | `<name>_optimized.webp`, `.svg`, or `.mp4` |
-| `recolor` | PNG, WebP | `--color <hex\|rgba()\|name>` or `--gradient "<hex1>,<hex2>"` | `<name>_recolored.<ext>` |
-| `svg recolor` | SVG | Optional `--color <color>` or `--gradient "<hex1>,<hex2>"` | `<name>_recolored.svg` |
-| `svg responsive` | SVG | Removes width/height; retains or derives `viewBox` | `<name>_responsive.svg` |
-| `component` | SVG folder | `--dir <folder>` and `--out <folder>` (saved `componentOut` can supply output) | `<out>/<input-folder>-graphics.tsx` or `.jsx` |
-| `sync` | JPG, PNG, WebP, GIF, SVG, MP4, MOV, M4V | `--dir <source>` and `--out <output>` on first use; supports `--watch` after initial sync | Compressed mirror; PNG → WebP, MOV → MP4, other formats retained |
-| `rename` | Files directly inside a folder, any type | `--dir <folder>`; interactive editor or natural filename order in non-interactive mode | Renames files in place; no new files |
-| `removebg` | JPG, PNG, WebP | iLoveAPI keys required for opaque inputs | `<name>_nobg.png` or `.webp` |
-| `changebg` | JPG, PNG, WebP | Optional `--color <hex\|rgba()>` or `--gradient "<hex1>,<hex2>"` | `<name>_bg.<ext>` |
+| Command          | Inputs                                       | Required flags / behavior                                                                                | Default output                                                   |
+| ---------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `compress`       | JPG, PNG, WebP, GIF, MP4, MOV, M4V           | `--webp` converts images to WebP                                                                         | `<name>_compress.<ext>`; videos output MP4                       |
+| `convert`        | JPG, PNG, GIF, TIF/TIFF, PSD, SVG, WebP, MOV | `--to jpg\|png\|webp\|mp4`; optional `--bg <color>` for JPG                                              | `<name>.<target>`                                                |
+| `edit`           | JPG, PNG, WebP                               | One or more of `--brightness 0-2`, `--saturation 0-3`, `--radius <px>`, `--px <n>`; flags apply directly | `<name>_edited.<ext>`                                            |
+| `resize`         | JPG, PNG, WebP                               | `--percent 1-99` or `--width <px>`; optional `--height <px>` for one file                                | `<name>_resized.<ext>`                                           |
+| `optimize`       | JPG, PNG, WebP, SVG, MP4, MOV, M4V           | Images accept resize flags; `--percent 100` keeps image dimensions                                       | `<name>_optimized.webp`, `.svg`, or `.mp4`                       |
+| `recolor`        | PNG, WebP                                    | `--color <hex\|rgba()\|name>` or `--gradient "<hex1>,<hex2>"`                                            | `<name>_recolored.<ext>`                                         |
+| `svg recolor`    | SVG                                          | Optional `--color <color>` or `--gradient "<hex1>,<hex2>"`                                               | `<name>_recolored.svg`                                           |
+| `svg responsive` | SVG                                          | Removes width/height; retains or derives `viewBox`                                                       | `<name>_responsive.svg`                                          |
+| `component`      | SVG folder                                   | `--dir <folder>` and `--out <folder>` (saved `componentOut` can supply output)                           | `<out>/<input-folder>-graphics.tsx` or `.jsx`                    |
+| `sync`           | JPG, PNG, WebP, GIF, SVG, MP4, MOV, M4V      | `--dir <source>` and `--out <output>` on first use; supports `--watch` after initial sync                | Compressed mirror; PNG → WebP, MOV → MP4, other formats retained |
+| `rename`         | Files directly inside a folder, any type     | `--dir <folder>`; interactive editor or natural filename order in non-interactive mode                   | Renames files in place; no new files                             |
+| `removebg`       | JPG, PNG, WebP                               | iLoveAPI keys required for opaque inputs                                                                 | `<name>_nobg.png` or `.webp`                                     |
+| `changebg`       | JPG, PNG, WebP                               | Optional `--color <hex\|rgba()>` or `--gradient "<hex1>,<hex2>"`                                         | `<name>_bg.<ext>`                                                |
 
 Gradient colors must be two comma-separated hex values, for example `--gradient "#ff0000,#0000ff"`. A gradient cannot be combined with `--color`.
 
 ## Shared flags
 
-| Flag | Meaning |
-|---|---|
-| `--all` | Process files directly inside the selected `--dir`; does not recurse into subfolders. `sync` is recursive. |
-| `--dir <folder>` | Select an input folder; overrides saved folder configuration. |
-| `--out <folder>` | Set an output folder for `component` or `sync`. |
-| `--dry-run` | Print planned changes without writing outputs. |
-| `--json` | Disable prompts and emit JSON results to stdout. |
-| `-y`, `--yes` | Replace originals after archiving them under `.subayai/`. |
-| `-h`, `--help` | Print command help. |
+| Flag             | Meaning                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `--all`          | Process files directly inside the selected `--dir`; does not recurse into subfolders. `sync` is recursive. |
+| `--dir <folder>` | Select an input folder; overrides saved folder configuration.                                              |
+| `--out <folder>` | Set an output folder for `component` or `sync`.                                                            |
+| `--dry-run`      | Print planned changes without writing outputs.                                                             |
+| `--json`         | Disable prompts and emit JSON results to stdout.                                                           |
+| `-y`, `--yes`    | Replace originals after archiving them under `.subayai/`.                                                  |
+| `-h`, `--help`   | Print command help.                                                                                        |
 
 Processed output files are excluded from future selection. `--all` ignores subfolders and already-processed files. `resize --all` with `--width` cancels the whole batch if any image is narrower than the requested width; `--all` cannot combine `--width` and `--height`.
 

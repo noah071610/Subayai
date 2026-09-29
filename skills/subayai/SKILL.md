@@ -7,6 +7,8 @@ description: Use only when directly processing image, SVG, or video files with s
 
 Run `npx subayai <command> <file> [flags] --json`; folder commands use `--dir` (and `--out` when needed). Pass every value as a flag: `--json` disables prompts.
 
+If asked to install it locally, use `npm install subayai`; otherwise `npx` is enough.
+
 Use only flags supported by the chosen command; unsupported flags fail.
 
 Examples: `npx subayai resize ./image.png --width 1200 --json`; `npx subayai compress --all --dir ./images --dry-run --json`; `npx subayai rename --dir ./images --dry-run --json`.

@@ -33,3 +33,5 @@ packages/cli/viewer/
 .npmrc
 *.pem
 *.tgz
+
+.agents
