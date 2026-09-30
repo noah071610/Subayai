@@ -36,10 +36,11 @@ Install https://www.npmjs.com/package/subayai in this codebase.
 ```sh
 npx subayai <command> <file> [flags] --json
 npx subayai <command> --all --dir <folder> [flags] --dry-run --json
+npx subayai merge video [--dir <folder>]
 npx subayai --help
 ```
 
-`<file>` may be a path or a filename. A filename is searched in the configured `subayai.dir`, or up to three levels below the current directory. If multiple files match, pass a path. `--json` disables interactive prompts; missing values produce an error.
+`<file>` may be a path or a filename. A filename is searched in the configured `subayai.dir`, or up to three levels below the current directory. In an interactive project without a saved `subayai.dir`, the CLI asks for a media folder and saves it to `package.json` before continuing. If multiple files match, pass a path. `--json` disables interactive prompts; missing values produce an error.
 
 ## Commands
 
@@ -50,6 +51,7 @@ npx subayai --help
 | `edit`           | JPG, PNG, WebP                               | One or more of `--brightness 0-2`, `--saturation 0-3`, `--radius <px>`, `--px <n>`; flags apply directly | `<name>_edited.<ext>`                                            |
 | `resize`         | JPG, PNG, WebP                               | `--percent 1-99` or `--width <px>`; optional `--height <px>` for one file                                | `<name>_resized.<ext>`                                           |
 | `optimize`       | JPG, PNG, WebP, SVG, MP4, MOV, M4V           | Images accept resize flags; `--percent 100` keeps image dimensions                                       | `<name>_optimized.webp`, `.svg`, or `.mp4`                       |
+| `merge video`    | MP4                                           | Joins MP4 files in filename order with stream copy; clips must have matching streams                     | `merged.mp4` (numbered if it already exists)                     |
 | `recolor`        | PNG, WebP                                    | `--color <hex\|rgba()\|name>` or `--gradient "<hex1>,<hex2>"`                                            | `<name>_recolored.<ext>`                                         |
 | `svg recolor`    | SVG                                          | Optional `--color <color>` or `--gradient "<hex1>,<hex2>"`                                               | `<name>_recolored.svg`                                           |
 | `svg responsive` | SVG                                          | Removes width/height; retains or derives `viewBox`                                                       | `<name>_responsive.svg`                                          |

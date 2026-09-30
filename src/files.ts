@@ -51,6 +51,13 @@ export function nearestPkg(): string | null {
   }
 }
 
+export function localInstall(): boolean {
+  for (let d = process.cwd(); ; d = dirname(d)) {
+    if (existsSync(join(d, 'node_modules', 'subayai', 'package.json'))) return true
+    if (dirname(d) === d) return false
+  }
+}
+
 // depth 0 = start 폴더 자체. dot 폴더, node_modules 등은 건너뜀
 export async function scan(start: string, maxDepth: number, exts: readonly string[], derived: RegExp | null): Promise<string[]> {
   const out: string[] = []
@@ -193,16 +200,17 @@ export async function searchFolder(message: string, dirs: string[], note: (d: st
 export async function askImageDir(): Promise<string> {
   const pkg = nearestPkg()
   const base = pkg ? dirname(pkg) : process.cwd()
-  const dir = await searchFolder('Image folder (type to filter)', await folders(base), () => ({ text: '' }))
-  if (!pkg) return dir
+  const dir = await searchFolder('Pick your media folder (saved to package.json)', await folders(base), () => ({ text: '' }))
+  const config = pkg ?? (localInstall() ? join(process.cwd(), 'package.json') : null)
+  if (!config) return dir
   try {
-    const text = await readFile(pkg, 'utf8')
+    const text = existsSync(config) ? await readFile(config, 'utf8') : '{}'
     const json = JSON.parse(text) as { subayai?: Record<string, unknown> }
     json.subayai = { ...json.subayai, dir: relative(base, dir) || '.' }
     // 기존 들여쓰기 유지
     const indent = /\n([ \t]+)"/.exec(text)?.[1] ?? 2
-    await writeFile(pkg, JSON.stringify(json, null, indent) + '\n')
-    log(c.yellow(`Saved "subayai": { "dir": "${json.subayai.dir}" } to ${rel(pkg)}.`))
+    await writeFile(config, JSON.stringify(json, null, indent) + '\n')
+    log(c.yellow(`Saved "subayai": { "dir": "${json.subayai.dir}" } to ${rel(config)}.`))
   } catch {
     // 깨진 package.json은 저장만 건너뜀
   }

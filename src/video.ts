@@ -1,7 +1,9 @@
 import { spawn } from 'node:child_process'
-import { rename, rm, stat } from 'node:fs/promises'
-import { basename } from 'node:path'
-import { ext } from './files.js'
+import { existsSync } from 'node:fs'
+import { mkdtemp, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { basename, dirname, join, resolve } from 'node:path'
+import { tmpdir } from 'node:os'
+import { ext, type Result } from './files.js'
 import { SkipError, UsageError, log, tty } from './ui.js'
 
 interface Probe {
@@ -122,5 +124,40 @@ export async function optimizeVideo(input: string, output: string): Promise<void
     }
   } finally {
     await rm(intermediate, { force: true })
+  }
+}
+
+// ponytail: reserves merged[-N].mp4 as outputs; rename source clips matching this pattern before merging.
+export async function mergeVideos(files: string[], dryRun: boolean): Promise<Result[]> {
+  const inputs = files.filter((file) => !/^merged(?:-\d+)?\.mp4$/i.test(basename(file)))
+  if (inputs.length < 2) throw new UsageError('Pick a folder with at least two MP4 files to merge.')
+  const first = inputs[0]
+  if (!first) throw new UsageError('Pick a folder with at least two MP4 files to merge.')
+  const dir = dirname(first)
+  let output = join(dir, 'merged.mp4')
+  let n = 2
+  while (existsSync(output)) output = join(dir, `merged-${n++}.mp4`)
+  const before = (await Promise.all(inputs.map(async (file) => (await stat(file)).size))).reduce((sum, size) => sum + size, 0)
+  if (dryRun) return [{ input: first, output, before, after: before, status: 'done' }]
+  return mergeVideoFiles(inputs, output, before)
+}
+
+async function mergeVideoFiles(inputs: string[], output: string, before: number): Promise<Result[]> {
+  const first = inputs[0]
+  if (!first) throw new UsageError('Pick a folder with at least two MP4 files to merge.')
+  const work = await mkdtemp(join(tmpdir(), 'subayai-merge-'))
+  const temp = join(work, 'merged.mp4')
+  const list = join(work, 'list.txt')
+  try {
+    const entries = inputs.map((file) => `file '${resolve(file).replaceAll('\\', '\\\\').replaceAll("'", "'\\''")}'`).join('\n') + '\n'
+    await writeFile(list, entries)
+    await exec('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', temp])
+    await rename(temp, output)
+    const after = (await stat(output)).size
+    return [{ input: first, output, before, after, status: 'done' }]
+  } catch (e) {
+    return [{ input: first, before, status: 'error', reason: e instanceof Error ? e.message : String(e) }]
+  } finally {
+    await rm(work, { recursive: true, force: true })
   }
 }

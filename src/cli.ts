@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { confirm, select } from '@inquirer/prompts'
 import { COMMANDS, DERIVED, isVideo, type Command, type Flags } from './commands.js'
-import { askImageDir, configDir, ext, findByName, label, nearestPkg, outputPath, pickFile, pickFolder, produce, rel, type Result, type Target } from './files.js'
+import { askImageDir, configDir, ext, findByName, label, localInstall, nearestPkg, outputPath, pickFile, pickFolder, produce, rel, scan, type Result, type Target } from './files.js'
 import { askComponentOut, askOut, checkMirror, mirrorPath, saveMirror, savedMirror, sources, stale, syncComponents, syncFile, watchMirror, type Mirror } from './sync.js'
 import { UsageError, bytes, c, log, tty } from './ui.js'
 
@@ -15,6 +15,7 @@ Usage
   npx subayai <command> [file] [flags]
   npx subayai <command> --all [--dir <folder>] [flags]
   npx subayai svg <recolor|responsive> [file] [flags]
+  npx subayai merge video [--dir <folder>]
 
 Commands
 ${Object.entries(COMMANDS)
@@ -147,8 +148,8 @@ async function main(): Promise<number> {
       pageSize: 20,
       choices: Object.entries(COMMANDS).map(([n, cmd]) => ({ name: `${n.padEnd(16)}${c.dim(cmd.summary)}`, value: n })),
     })
-  } else if (name === 'svg' && `svg ${positionals[1]}` in COMMANDS) {
-    name = `svg ${positionals[1]}`
+  } else if ((name === 'svg' || name === 'merge') && `${name} ${positionals[1]}` in COMMANDS) {
+    name = `${name} ${positionals[1]}`
     argOffset = 2
   }
   const cmd: Command | undefined = COMMANDS[name]
@@ -169,7 +170,7 @@ async function main(): Promise<number> {
   const saved = cfg?.sync
   let root = v.dir ? resolve(v.dir) : saved?.src ?? configDir()
   if (root && !existsSync(root)) throw new UsageError(`Folder not found: ${root}`)
-  if (!root && all && tty.interactive) root = await askImageDir()
+  if (!root && tty.interactive && (nearestPkg() || localInstall() || all)) root = await askImageDir()
   const target: Target = { root, exts: cmd.inputs, video: Boolean(cmd.video), derived: DERIVED, all: cmd.all !== false, multi: Boolean(cmd.multi) }
 
   // sync: 이미지 폴더를 하위 폴더까지 out에 미러링. --watch는 첫 sync가 끝나 package.json에 저장된 뒤에만
@@ -186,7 +187,7 @@ async function main(): Promise<number> {
     mirror = { src: root, out, components }
   }
 
-  const files = mirror ? await sources(mirror.src, mirror.out, cmd.inputs) : all ? await pickFolder(target) : fileArg ? [await findByName(fileArg, target)] : await pickFile(target)
+  const files = mirror ? await sources(mirror.src, mirror.out, cmd.inputs) : name === 'merge video' ? await scan(root ?? process.cwd(), 0, cmd.inputs, target.derived) : all ? await pickFolder(target) : fileArg ? [await findByName(fileArg, target)] : await pickFile(target)
   const bad = files.find((f) => !cmd.inputs.includes('*') && !cmd.inputs.includes(ext(f)))
   if (bad) throw new UsageError(`${name} accepts ${cmd.inputs.join('/')} only: ${rel(bad)}`)
 

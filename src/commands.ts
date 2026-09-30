@@ -12,7 +12,7 @@ import { cutout } from './removebg.js'
 import { renameFiles } from './rename.js'
 import { colorsOf, component, optimizeSvg, paintSvg, responsiveSvg, transformSvg } from './svg.js'
 import { askColor, askInt, choose, parseColor, SkipError, tty, UsageError, type Rgba } from './ui.js'
-import { compressVideo, movToMp4, optimizeVideo } from './video.js'
+import { compressVideo, mergeVideos, movToMp4, optimizeVideo } from './video.js'
 
 export interface Flags {
   webp: boolean
@@ -407,6 +407,12 @@ export const COMMANDS: Record<string, Command> = {
     multi: true,
     inputs: SVG,
     prepare: async () => ({ suffix: 'responsive', outExt: () => 'svg', run: (i, o) => transformSvg(i, o, responsiveSvg) }),
+  },
+  'merge video': {
+    summary: 'Join MP4 files in a folder in filename order without re-encoding',
+    inputs: ['mp4'],
+    video: true,
+    bundle: (files, _flags, dryRun) => mergeVideos(files, dryRun),
   },
   component: {
     summary: 'Turn every SVG in a folder into React components (<folder>-graphics.tsx)',
