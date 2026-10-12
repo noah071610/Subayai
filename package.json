@@ -1,6 +1,6 @@
 {
   "name": "subayai",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Process images, SVGs, and videos from the terminal: compress, convert, resize, edit, recolor, remove backgrounds, generate React components, and sync assets.",
   "type": "module",
   "bin": {
