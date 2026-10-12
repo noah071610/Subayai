@@ -72,10 +72,12 @@ Gradient colors must be two comma-separated hex values, for example `--gradient 
 | `--out <folder>` | Set an output folder for `component` or `sync`.                                                            |
 | `--dry-run`      | Print planned changes without writing outputs.                                                             |
 | `--json`         | Disable prompts and emit JSON results to stdout.                                                           |
-| `-y`, `--yes`    | Replace originals after archiving them under `.subayai/`.                                                  |
+| `-y`, `--yes`    | Replace originals after archiving them under `.subayai/`; also overwrite existing output files.          |
 | `-h`, `--help`   | Print command help.                                                                                        |
 
 Processed output files are excluded from future selection. `--all` ignores subfolders and already-processed files. `resize --all` with `--width` cancels the whole batch if any image is narrower than the requested width; `--all` cannot combine `--width` and `--height`.
+
+In interactive runs, an existing output file prompts for overwrite confirmation. Declining keeps the file and skips that result. `--json` runs skip existing outputs unless `-y` is passed.
 
 ## Configuration
 

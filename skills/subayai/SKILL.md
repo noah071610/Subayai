@@ -17,6 +17,10 @@ For the complete feature catalog, formats, output rules, and limitations, read `
 
 Examples: `npx subayai resize ./image.png --width 1200 --json`; `npx subayai compress --all --dir ./images --dry-run --json`; `npx subayai rename --dir ./images --dry-run --json`.
 
+`resize`/`optimize`의 `--width`만 지정하면 원본 비율에 맞춰 높이를 자동 계산한다. `--height`를 함께 지정하면 두 값을 그대로 사용한다.
+
+대화형 작업에서 출력 파일이 이미 있으면 덮어쓰기 여부를 묻는다. `--json`에서는 묻지 않고 건너뛰며, `-y`는 기존 출력도 교체한다.
+
 Commands: `compress`, `convert --to`, `edit`, `resize`, `optimize`, `merge video`, `recolor`, `svg recolor`, `svg responsive`, `component`, `sync`, `rename`, `removebg`, `changebg`. `merge video` joins MP4 files in a folder by filename without re-encoding; inputs need matching streams. Gradient flags take two comma-separated hex colors, e.g. `--gradient "#ff0000,#0000ff"`.
 
 - Preview `--all` and `rename` with `--dry-run --json`. `--all` scans one folder level; `sync` recurses.

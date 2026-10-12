@@ -126,7 +126,7 @@ function decodePsd(file: string): Promise<Buffer> {
   })
 }
 
-type Plan = (d: Dims) => { width: number; height?: number }
+type Plan = (d: Dims) => Dims
 
 // null = 리사이즈 안 함 (keepSize 허용 시: 메뉴 "Keep original size" 또는 --percent 100)
 async function askResize(files: string[], f: Flags, keepSize = false): Promise<Plan | null> {
@@ -170,7 +170,7 @@ async function askResize(files: string[], f: Flags, keepSize = false): Promise<P
       throw new UsageError(`Cancelled: ${small.length} image(s) are narrower than ${width}px\n  ${small.map((x) => `${rel(x.file)} (${x.d.width}px)`).join('\n  ')}`)
     }
   }
-  return () => (height === undefined ? { width } : { width, height })
+  return (d) => ({ width, height: height ?? Math.max(1, Math.round(d.height * width / d.width)) })
 }
 
 const resized = async (file: string, plan: Plan | null): Promise<Sharp> => (plan ? load(file).resize({ ...plan(await dims(file)), fit: 'fill' }) : load(file))

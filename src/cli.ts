@@ -27,7 +27,7 @@ Common flags
                     (without a saved image folder, asks for it once and saves it to package.json)
   --dir <folder>    Image folder (overrides package.json "subayai": { "dir": "..." })
   --watch           sync only: keep running and sync every change (after the first sync)
-  -y, --yes         Replace the original (original is kept in .subayai/ at the project root)
+  -y, --yes         Replace the original (archived in .subayai/) and any existing output
   --dry-run         Show what would happen, change nothing
   --json            Machine-readable output, never prompts
   -h, --help        Show this help
@@ -212,7 +212,8 @@ async function main(): Promise<number> {
     if (!job) return 0
     // 원본 대체: -y > package.json "subayai.replace": "always" > 마지막에 질문. 비대화형은 질문 없이 대체 안 함
     let replace = v.yes || await alwaysReplace()
-    const opts = (input: string) => ({ suffix: job.suffix, outExt: job.outExt(input), replace, keepSmaller: Boolean(job.keepSmaller) })
+    const overwrites = new Set<string>()
+    const opts = (input: string) => ({ suffix: job.suffix, outExt: job.outExt(input), replace, keepSmaller: Boolean(job.keepSmaller), overwrite: v.yes || overwrites.has(input) })
 
     if (v['dry-run']) {
       printPlan(name, files.map((f) => ({ input: rel(f), output: rel(outputPath(f, opts(f))) })), v.json)
@@ -221,6 +222,10 @@ async function main(): Promise<number> {
     // picker에서 폴더를 고른 경우는 이미 확인함
     if (v.all && files.length > 1 && tty.interactive && !(await confirm({ message: `Process ${files.length} files?`, default: true }))) return 0
     if (!replace && tty.interactive) replace = await askReplace()
+    if (tty.interactive && !v.yes) for (const f of files) {
+      const output = outputPath(f, opts(f))
+      if (output.toLowerCase() !== f.toLowerCase() && existsSync(output) && await confirm({ message: `Overwrite existing output ${rel(output)}?`, default: false })) overwrites.add(f)
+    }
 
     await pool(files, cmd.serial ? 1 : 4, async (f) => {
       const r = await produce(f, opts(f), (out) => job.run(f, out))

@@ -245,7 +245,7 @@ export interface Result {
   reason?: string
 }
 
-export interface OutOpts { suffix: string; outExt: string; replace: boolean; keepSmaller: boolean }
+export interface OutOpts { suffix: string; outExt: string; replace: boolean; keepSmaller: boolean; overwrite?: boolean }
 
 export function outputPath(input: string, o: OutOpts): string {
   const name = basename(input, extname(input))
@@ -280,7 +280,7 @@ export async function produce(input: string, opts: OutOpts, run: (output: string
   const final = outputPath(input, opts)
   const before = (await stat(input)).size
   // macOS는 대소문자 무시 FS라 A.JPG == A.jpg
-  if (final.toLowerCase() !== input.toLowerCase() && existsSync(final)) {
+  if (final.toLowerCase() !== input.toLowerCase() && existsSync(final) && !opts.overwrite) {
     return { input, before, status: 'skipped', reason: `${rel(final)} already exists` }
   }
   const tmp = join(dir, `.${name}${TMP}.${opts.outExt}`)

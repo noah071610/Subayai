@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
-import { outputPath } from '../dist/files.js'
+import { outputPath, produce } from '../dist/files.js'
 import { parseColor } from '../dist/ui.js'
 import { parsePlan } from '../dist/browser-rename.js'
 
@@ -33,6 +33,25 @@ test('outputPath', () => {
   assert.equal(outputPath('/a/b.png', { ...o, suffix: '' }), '/a/b.webp')
 })
 
+test('기존 출력 파일은 승인된 경우에만 교체', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'subayai-overwrite-'))
+  try {
+    const input = join(dir, 'a.png')
+    const output = join(dir, 'a_resized.png')
+    const opts = { suffix: 'resized', outExt: 'png', replace: false, keepSmaller: false }
+    writeFileSync(input, 'source')
+    writeFileSync(output, 'old')
+    const run = async (file) => writeFileSync(file, 'new')
+    assert.equal((await produce(input, opts, run)).status, 'skipped')
+    assert.equal(readFileSync(output, 'utf8'), 'old')
+    assert.equal((await produce(input, { ...opts, overwrite: true }, run)).status, 'done')
+    assert.equal(readFileSync(output, 'utf8'), 'new')
+    assert.equal(readFileSync(input, 'utf8'), 'source')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('edit shape / padding via CLI', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'subayai-'))
   await sharp({ create: { width: 200, height: 100, channels: 4, background: '#f00' } }).png().toFile(join(dir, 'a.png'))
@@ -48,6 +67,10 @@ test('edit shape / padding via CLI', async () => {
   assert.deepEqual(await sharp(join(dir, 'a_edited.png')).metadata().then((m) => [m.width, m.height]), [220, 120])
 
   run('resize', 'a.png', '--percent', '50')
+  assert.deepEqual(await sharp(join(dir, 'a_resized.png')).metadata().then((m) => [m.width, m.height]), [100, 50])
+
+  rmSync(join(dir, 'a_resized.png'))
+  run('resize', 'a.png', '--width', '100')
   assert.deepEqual(await sharp(join(dir, 'a_resized.png')).metadata().then((m) => [m.width, m.height]), [100, 50])
 
   // --all + 커스텀 가로가 더 크면 전체 취소
